@@ -1,0 +1,38 @@
+[
+  {
+    "id": "coasters",
+    "title": "Slate/Wood Coasters",
+    "price": 45.0,
+    "description": "Naturally textured slate or premium wood, deep engraved with precision. Set of 4.",
+    "materials": ["Slate", "Wood"],
+    "category": "coasters",
+    "weight": 800
+  },
+  {
+    "id": "cutting-boards",
+    "title": "Hardwood Cutting Boards",
+    "price": 120.0,
+    "description": "Premium selection of Walnut or Maple. Custom laser etched branding.",
+    "materials": ["Walnut", "Maple"],
+    "category": "cutting-boards",
+    "weight": 1500
+  },
+  {
+    "id": "signs",
+    "title": "Industrial Signs",
+    "price": 85.0,
+    "description": "Heavy-duty slate or metal signage for luxury spaces.",
+    "materials": ["Slate"],
+    "category": "signs",
+    "weight": 2500
+  },
+  {
+    "id": "laser-training",
+    "title": "Laser Training",
+    "price": 499.0,
+    "description": "Professional training for laser-works. Certification included.",
+    "materials": ["Professional Certification"],
+    "category": "laser-training",
+    "weight": 0
+  }
+]

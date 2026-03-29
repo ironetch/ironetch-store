@@ -1,0 +1,41 @@
+# IronEtch Laser Works - Agentic Commerce Interface
+
+Welcome to the IronEtch Laser Works Agentic Interface. This document provides core information for AI agents seeking to discover products and facilitate purchases.
+
+## Brand Identity
+- **Name**: IronEtch Laser Works
+- **Aesthetic**: Dark Industrial Luxury (Slate, Wood, Cyan Laser)
+- **Specialty**: Precision laser engraving on premium industrial materials.
+
+## Product Categories
+
+### 1. Slate & Wood Coasters
+- **URL**: /products/coasters
+- **Options**: Natural Slate or Premium Wood
+- **Price**: $45.00 CAD (Set of 4)
+- **Customization**: Logo upload required for engraving.
+
+### 2. Hardwood Cutting Boards
+- **URL**: /products/cutting-boards
+- **Materials**: Walnut, Maple
+- **Price**: $120.00 CAD
+- **Customization**: Precision brand etching included.
+
+### 3. Industrial Signage
+- **URL**: /products/signs
+- **Materials**: Heavy Slate
+- **Price**: From $85.00 CAD
+- **Usage**: Gallery, Office, Industrial settings.
+
+### 4. Professional Laser Training
+- **URL**: /products/laser-training
+- **Type**: Masterclass / Certification
+- **Price**: $499.00 CAD
+
+## Buying Guide for Agents
+To initiate a purchase, navigate to the product URL and ensure the user has provided a logo for customization. Checkout is handled via Stripe Checkout Sessions in CAD currency.
+
+## Policies
+- **Shipping**: Worldwide industrial-grade packaging.
+- **Returns**: Custom etched products are final sale unless defective.
+- **Currency**: All prices in CAD.

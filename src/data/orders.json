@@ -1,0 +1,18 @@
+[
+  {
+    "id": "ord_123",
+    "customer": "Alex Industrial",
+    "product": "Slate Coasters",
+    "amount": 45.0,
+    "status": "Processing",
+    "date": "2026-03-29"
+  },
+  {
+    "id": "ord_124",
+    "customer": "Woodworks Co.",
+    "product": "Hardwood Cutting Boards",
+    "amount": 120.0,
+    "status": "Shipped",
+    "date": "2026-03-28"
+  }
+]
