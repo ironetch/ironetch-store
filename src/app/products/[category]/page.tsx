@@ -8,6 +8,7 @@ export default function ProductPage() {
   const params = useParams();
   const category = params?.category as string;
   const [product, setProduct] = useState<any>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
     fetch('/api/products')
@@ -61,8 +62,31 @@ export default function ProductPage() {
              <LogoUpload />
           </div>
 
-          <button className="w-full py-5 bg-cyan-laser text-slate-950 font-black tracking-[0.2em] rounded-2xl hover:scale-[1.01] transition-all cyan-glow mt-8">
-            PROCEED TO CHECKOUT
+          <button 
+            disabled={isCheckingOut}
+            onClick={async () => {
+              setIsCheckingOut(true);
+              const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  title: product.title,
+                  price: product.price,
+                  category: product.category,
+                  weight: product.weight
+                })
+              });
+              const data = await res.json();
+              if (data.url) {
+                window.location.href = data.url;
+              } else {
+                setIsCheckingOut(false);
+                alert("Checkout failed: " + data.error);
+              }
+            }}
+            className="w-full py-5 bg-cyan-laser text-slate-950 font-black tracking-[0.2em] rounded-2xl hover:scale-[1.01] transition-all cyan-glow mt-8 disabled:opacity-50"
+          >
+            {isCheckingOut ? 'INITIALIZING CHECKOUT...' : 'PROCEED TO CHECKOUT'}
           </button>
           
           <div className="flex items-center gap-6 justify-center mt-4">
