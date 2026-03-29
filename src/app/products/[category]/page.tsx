@@ -9,13 +9,17 @@ export default function ProductPage() {
   const category = params?.category as string;
   const [product, setProduct] = useState<any>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
 
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
         const found = data.find((p: any) => p.id === category);
-        setProduct(found || data[0]);
+        const prod = found || data[0];
+        setProduct(prod);
+        if (prod?.materials?.length) setSelectedMaterial(prod.materials[0]);
       });
   }, [category]);
 
@@ -27,7 +31,12 @@ export default function ProductPage() {
         {/* Product Visuals */}
         <div className="relative group">
           <div className="aspect-square glass border border-slate-800 rounded-3xl overflow-hidden flex items-center justify-center text-8xl font-black italic text-slate-800">
-            {product.title[0]}
+            {product.imageUrl ? (
+               // eslint-disable-next-line @next/next/no-img-element
+               <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
+            ) : (
+               product.title[0]
+            )}
           </div>
           <div className="absolute inset-0 bg-cyan-laser/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </div>
@@ -50,7 +59,11 @@ export default function ProductPage() {
             <h3 className="text-sm font-bold tracking-widest text-slate-500 uppercase">SELECT MATERIAL</h3>
             <div className="flex gap-4">
               {product.materials.map((m: string) => (
-                <button key={m} className="px-6 py-3 glass border border-slate-700 rounded-xl hover:border-cyan-laser transition-all text-sm font-bold tracking-widest uppercase">
+                <button 
+                  key={m} 
+                  onClick={() => setSelectedMaterial(m)}
+                  className={`px-6 py-3 glass border rounded-xl hover:border-cyan-laser transition-all text-sm font-bold tracking-widest uppercase ${selectedMaterial === m ? 'border-cyan-laser text-cyan-laser bg-cyan-laser/10' : 'border-slate-700 text-slate-300'}`}
+                >
                   {m}
                 </button>
               ))}
@@ -58,9 +71,26 @@ export default function ProductPage() {
           </div>
 
           <div className="space-y-6">
-             <h3 className="text-sm font-bold tracking-widest text-slate-500 uppercase">CUSTOM BRANDING</h3>
-             <LogoUpload />
+            <h3 className="text-sm font-bold tracking-widest text-slate-500 uppercase">QUANTITY</h3>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-12 h-12 rounded-xl glass border border-slate-700 flex items-center justify-center text-xl hover:border-cyan-laser transition-colors"
+              >-</button>
+              <span className="text-2xl font-black min-w-[3rem] text-center">{quantity}</span>
+              <button 
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-12 h-12 rounded-xl glass border border-slate-700 flex items-center justify-center text-xl hover:border-cyan-laser transition-colors"
+              >+</button>
+            </div>
           </div>
+
+          {product.isCustom && (
+            <div className="space-y-6">
+               <h3 className="text-sm font-bold tracking-widest text-slate-500 uppercase">CUSTOM BRANDING</h3>
+               <LogoUpload />
+            </div>
+          )}
 
           <button 
             disabled={isCheckingOut}
@@ -73,7 +103,9 @@ export default function ProductPage() {
                   title: product.title,
                   price: product.price,
                   category: product.category,
-                  weight: product.weight
+                  weight: product.weight,
+                  quantity: quantity,
+                  metadata: { material: selectedMaterial }
                 })
               });
               const data = await res.json();

@@ -10,7 +10,9 @@ export default function NewProduct() {
     description: '',
     category: 'coasters',
     materials: '',
-    weight: ''
+    weight: '',
+    imageUrl: '',
+    isCustom: false
   });
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
@@ -112,6 +114,29 @@ export default function NewProduct() {
             onChange={e => setFormData({...formData, materials: e.target.value})}
             placeholder="Slate, Wood, Steel..."
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE URL</label>
+          <input 
+            className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
+            value={formData.imageUrl}
+            onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input 
+            type="checkbox"
+            id="isCustom"
+            checked={formData.isCustom}
+            onChange={e => setFormData({...formData, isCustom: e.target.checked})}
+            className="w-5 h-5 accent-cyan-laser"
+          />
+          <label htmlFor="isCustom" className="text-sm font-bold text-slate-300 tracking-widest uppercase">
+            ENABLE CUSTOM LOGO UPLOAD COMPONENT FOR BUYERS
+          </label>
         </div>
 
         <button 

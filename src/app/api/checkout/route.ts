@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
+      allow_promotion_codes: true,
       success_url: `${req.headers.get('origin') || 'http://localhost:3000'}?success=true`,
       cancel_url: `${req.headers.get('origin') || 'http://localhost:3000'}?canceled=true`,
       shipping_address_collection: {

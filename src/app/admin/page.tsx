@@ -4,14 +4,35 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'promo-codes'>('products');
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [promoCodes, setPromoCodes] = useState<any[]>([]);
+  const [newPromo, setNewPromo] = useState({ code: '', amount_off: '', percent_off: '' });
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => setProducts(data));
     fetch('/api/orders').then(res => res.json()).then(data => setOrders(data));
+    fetch('/api/promo-codes').then(res => res.json()).then(data => {
+      if (Array.isArray(data)) setPromoCodes(data);
+    });
   }, []);
+
+  const handleCreatePromo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch('/api/promo-codes', {
+      method: 'POST',
+      body: JSON.stringify(newPromo),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setPromoCodes([data, ...promoCodes]);
+      setNewPromo({ code: '', amount_off: '', percent_off: '' });
+    } else {
+      alert('Failed to create promo code');
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to remove this high-end item?')) {
@@ -47,9 +68,15 @@ export default function AdminDashboard() {
         >
           ORDERS
         </button>
+        <button 
+          onClick={() => setActiveTab('promo-codes')}
+          className={`pb-4 text-sm font-bold tracking-[0.2em] transition-all ${activeTab === 'promo-codes' ? 'text-cyan-laser border-b-2 border-cyan-laser' : 'text-slate-500'}`}
+        >
+          PROMO CODES
+        </button>
       </div>
 
-      {activeTab === 'products' ? (
+      {activeTab === 'products' && (
         <div className="grid grid-cols-1 gap-4">
           {products.map((p) => (
             <div key={p.id} className="glass p-6 rounded-2xl border border-slate-800 flex items-center justify-between group hover:border-cyan-laser/50 transition-all">
@@ -69,7 +96,8 @@ export default function AdminDashboard() {
             </div>
           ))}
         </div>
-      ) : (
+      )}
+      {activeTab === 'orders' && (
         <div className="grid grid-cols-1 gap-4">
           {orders.map((o) => (
             <div key={o.id} className="glass p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -86,6 +114,48 @@ export default function AdminDashboard() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {activeTab === 'promo-codes' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Create Promo Code</h2>
+            <form onSubmit={handleCreatePromo} className="glass p-6 rounded-2xl border border-slate-800 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-2">PROMO CODE</label>
+                <input required className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white uppercase focus:border-cyan-laser outline-none" placeholder="SUMMER20" value={newPromo.code} onChange={e => setNewPromo({...newPromo, code: e.target.value.toUpperCase()})} />
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-slate-500 mb-2">AMOUNT OFF (CAD)</label>
+                  <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-laser outline-none" placeholder="10.00" value={newPromo.amount_off} onChange={e => setNewPromo({...newPromo, amount_off: e.target.value, percent_off: ''})} disabled={!!newPromo.percent_off} />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-slate-500 mb-2">PERCENT OFF (%)</label>
+                  <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-laser outline-none" placeholder="20" value={newPromo.percent_off} onChange={e => setNewPromo({...newPromo, percent_off: e.target.value, amount_off: ''})} disabled={!!newPromo.amount_off} />
+                </div>
+              </div>
+              <button className="w-full py-3 bg-cyan-laser text-slate-950 font-bold rounded-lg cyan-glow mt-4">GENERATE CODE</button>
+            </form>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Active Codes</h2>
+            <div className="space-y-4">
+              {promoCodes.map((pc: any) => (
+                <div key={pc.id} className="glass p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                  <div>
+                    <span className="font-bold text-cyan-laser text-xl uppercase">{pc.code}</span>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {pc.coupon.percent_off ? `${pc.coupon.percent_off}% OFF` : `$${(pc.coupon.amount_off/100).toFixed(2)} CAD OFF`}
+                    </p>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                     {pc.times_redeemed} REDEEMED
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

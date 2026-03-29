@@ -115,6 +115,29 @@ export default function EditProduct() {
           />
         </div>
 
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE URL</label>
+          <input 
+            className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
+            value={formData.imageUrl || ''}
+            onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input 
+            type="checkbox"
+            id="isCustom"
+            checked={formData.isCustom || false}
+            onChange={e => setFormData({...formData, isCustom: e.target.checked})}
+            className="w-5 h-5 accent-cyan-laser"
+          />
+          <label htmlFor="isCustom" className="text-sm font-bold text-slate-300 tracking-widest uppercase">
+            ENABLE CUSTOM LOGO UPLOAD COMPONENT FOR BUYERS
+          </label>
+        </div>
+
         <button 
           disabled={isSaving}
           className="w-full py-5 bg-cyan-laser text-slate-950 font-black tracking-[0.2em] rounded-2xl hover:scale-[1.01] transition-all cyan-glow mt-8 disabled:opacity-50"

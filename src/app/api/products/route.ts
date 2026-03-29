@@ -19,7 +19,9 @@ export async function POST(req: Request) {
       id: body.title.toLowerCase().replace(/\s+/g, '-'),
       ...body,
       price: parseFloat(body.price),
-      weight: parseInt(body.weight) || 0
+      weight: parseInt(body.weight) || 0,
+      imageUrl: body.imageUrl || "",
+      isCustom: Boolean(body.isCustom)
     };
     
     products.push(newProduct);
