@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 
 export default function EditProduct() {
   const params = useParams();
-  const id = params.id as string;
+  const id = params?.id as string;
   const [formData, setFormData] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();

@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 
 export default function ProductPage() {
   const params = useParams();
-  const category = params.category as string;
+  const category = params?.category as string;
   const [product, setProduct] = useState<any>(null);
 
   useEffect(() => {

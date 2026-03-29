@@ -4,9 +4,9 @@ import path from 'path';
 
 const dataPath = path.join(process.cwd(), 'src/data/products.json');
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = (await params).id;
+    const { id } = await params;
     const body = await req.json();
     const fileData = fs.readFileSync(dataPath, 'utf8');
     let products = JSON.parse(fileData);
@@ -20,9 +20,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = (await params).id;
+    const { id } = await params;
     const fileData = fs.readFileSync(dataPath, 'utf8');
     let products = JSON.parse(fileData);
     
