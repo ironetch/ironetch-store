@@ -6,23 +6,27 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, price, quantity = 1, metadata = {}, weight = 0, category } = body;
+    const { items } = body;
+
+    if (!items || items.length === 0) {
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+    }
+
+    const line_items = items.map((item: any) => ({
+      price_data: {
+        currency: 'cad',
+        product_data: {
+          name: item.title,
+          metadata: { material: item.material || '', weight: String(item.weight || 0) },
+        },
+        unit_amount: Math.round(item.price * 100),
+      },
+      quantity: item.quantity,
+    }));
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'cad',
-            product_data: {
-              name: title,
-              metadata: { ...metadata, weight: String(weight), category },
-            },
-            unit_amount: Math.round(price * 100),
-          },
-          quantity,
-        },
-      ],
+      line_items,
       mode: 'payment',
       allow_promotion_codes: true,
       success_url: `${req.headers.get('origin') || 'http://localhost:3000'}?success=true`,

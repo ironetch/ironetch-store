@@ -1,8 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { auth, signOut } from '@/auth';
+import CartButton from '@/components/CartButton';
 
-const Navbar = () => {
+export default async function Navbar() {
+  const session = await auth();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass cyan-border m-4 rounded-2xl overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -28,13 +32,27 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="px-4 py-2 text-sm font-bold bg-cyan-laser text-slate-950 rounded-lg hover:bg-white transition-all cyan-glow">
-            SHOP NOW
-          </button>
+          {session?.user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-bold text-slate-400">Hi, {session.user.name?.split(' ')[0] || session.user.email}</span>
+              <form action={async () => {
+                "use server";
+                await signOut({ redirectTo: '/' });
+              }}>
+                <button type="submit" className="text-xs font-bold text-slate-400 hover:text-red-400 transition-colors uppercase tracking-widest">
+                  Log Out
+                </button>
+              </form>
+            </div>
+          ) : (
+             <Link href="/login" className="px-4 py-2 text-sm font-bold border border-slate-700 text-white rounded-lg hover:border-cyan-laser transition-all">
+               SIGN IN
+             </Link>
+          )}
+
+          <CartButton />
         </div>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
