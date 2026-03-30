@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import CartMenu from "@/components/CartMenu";
+import { auth } from "@/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +20,13 @@ export const metadata: Metadata = {
   description: "High-end laser engraved products on slate and wood. Coasters, Cutting Boards, and Professional Training.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="bg-slate-950 text-slate-50 min-h-screen">
@@ -31,7 +34,7 @@ export default function RootLayout({
         <main className="pt-24 min-h-screen">
           {children}
         </main>
-        <CartMenu />
+        <CartMenu session={session} />
       </body>
     </html>
   );

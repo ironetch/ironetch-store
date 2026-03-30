@@ -11,7 +11,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const fileData = fs.readFileSync(dataPath, 'utf8');
     let products = JSON.parse(fileData);
     
-    products = products.map((p: any) => p.id === id ? { ...p, ...body, price: parseFloat(body.price), weight: parseInt(body.weight) || 0, imageUrl: body.imageUrl || "", isCustom: Boolean(body.isCustom) } : p);
+    products = products.map((p: any) => p.id === id ? { ...p, ...body, price: parseFloat(body.price), weight: parseInt(body.weight) || 0, stock: parseInt(body.stock) || 0, imageUrl: body.imageUrl || "", isCustom: Boolean(body.isCustom) } : p);
     
     fs.writeFileSync(dataPath, JSON.stringify(products, null, 2));
     return NextResponse.json({ success: true });

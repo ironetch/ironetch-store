@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       ...body,
       price: parseFloat(body.price),
       weight: parseInt(body.weight) || 0,
+      stock: parseInt(body.stock) || 0,
       imageUrl: body.imageUrl || "",
       isCustom: Boolean(body.isCustom)
     };

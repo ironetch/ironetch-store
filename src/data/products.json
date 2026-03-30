@@ -8,7 +8,8 @@
     "category": "coasters",
     "weight": 800,
     "imageUrl": "",
-    "isCustom": true
+    "isCustom": true,
+    "stock": 100
   },
   {
     "id": "cutting-boards",
@@ -19,7 +20,8 @@
     "category": "cutting-boards",
     "weight": 1500,
     "imageUrl": "",
-    "isCustom": true
+    "isCustom": true,
+    "stock": 50
   },
   {
     "id": "signs",
@@ -30,7 +32,8 @@
     "category": "signs",
     "weight": 2500,
     "imageUrl": "",
-    "isCustom": true
+    "isCustom": true,
+    "stock": 25
   },
   {
     "id": "laser-training",
@@ -41,6 +44,7 @@
     "category": "laser-training",
     "weight": 0,
     "imageUrl": "",
-    "isCustom": false
+    "isCustom": false,
+    "stock": 999
   }
 ]

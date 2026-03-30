@@ -11,6 +11,7 @@ export default function NewProduct() {
     category: 'coasters',
     materials: '',
     weight: '',
+    stock: '',
     imageUrl: '',
     isCustom: false
   });
@@ -56,7 +57,7 @@ export default function NewProduct() {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-500 tracking-widest">PRICE (CAD)</label>
             <input 
@@ -77,6 +78,17 @@ export default function NewProduct() {
               value={formData.weight}
               onChange={e => setFormData({...formData, weight: e.target.value})}
               placeholder="500"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-500 tracking-widest">STOCK QTY</label>
+            <input 
+              required
+              type="number"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
+              value={formData.stock}
+              onChange={e => setFormData({...formData, stock: e.target.value})}
+              placeholder="100"
             />
           </div>
           <div className="space-y-2">

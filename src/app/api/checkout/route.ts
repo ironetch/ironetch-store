@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import fs from 'fs';
+import path from 'path';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
+const dataPath = path.join(process.cwd(), 'src/data/products.json');
+
 
 export async function POST(req: Request) {
   try {
@@ -10,6 +14,18 @@ export async function POST(req: Request) {
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+    }
+
+    const localProducts = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+
+    for (const item of items) {
+      const product = localProducts.find((p: any) => p.id === item.productId);
+      if (!product) {
+        return NextResponse.json({ error: `Product ${item.title} not found in database.` }, { status: 404 });
+      }
+      if (item.quantity > product.stock) {
+        return NextResponse.json({ error: `Not enough stock for ${item.title}. Only ${product.stock} remaining.` }, { status: 400 });
+      }
     }
 
     const line_items = items.map((item: any) => ({
