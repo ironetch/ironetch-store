@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LogoUpload from '@/components/LogoUpload';
 
 export default function NewProduct() {
   const [formData, setFormData] = useState({
@@ -129,13 +130,21 @@ export default function NewProduct() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE URL</label>
-          <input 
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
-            value={formData.imageUrl}
-            onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-            placeholder="https://example.com/image.jpg"
-          />
+          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE UPLOAD</label>
+          {formData.imageUrl ? (
+            <div className="bg-slate-900 border border-cyan-laser/50 rounded-xl p-4 flex items-center justify-between">
+              <span className="text-cyan-laser text-sm truncate font-mono">{formData.imageUrl}</span>
+              <button 
+                type="button" 
+                onClick={() => setFormData({...formData, imageUrl: ''})}
+                className="text-red-400 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
+              >
+                REMOVE
+              </button>
+            </div>
+          ) : (
+            <LogoUpload onUpload={(url) => setFormData({...formData, imageUrl: url})} />
+          )}
         </div>
 
         <div className="flex items-center gap-3">
