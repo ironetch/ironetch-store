@@ -3,15 +3,28 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
+import { useCart } from "@/store/useCart";
 
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
+  const clearCart = useCart(state => state.clearCart);
 
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
       .then(data => setProducts(data.filter((p: any) => p.category !== 'laser-training')));
-  }, []);
+
+    if (window.location.search.includes('success=true')) {
+      clearCart();
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setTimeout(() => alert("Checkout successful! Thank you for your order."), 500);
+    }
+    
+    if (window.location.search.includes('canceled=true')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setTimeout(() => alert("Checkout was canceled."), 500);
+    }
+  }, [clearCart]);
 
   return (
     <div className="flex flex-col gap-24 pb-24">
