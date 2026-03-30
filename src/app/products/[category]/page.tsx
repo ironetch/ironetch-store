@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import LogoUpload from '@/components/LogoUpload';
 import { useParams } from 'next/navigation';
 import { useCart } from '@/store/useCart';
 
@@ -86,16 +85,9 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {product.isCustom && (
-            <div className="space-y-6">
-               <h3 className="text-sm font-bold tracking-widest text-slate-500 uppercase">CUSTOM BRANDING</h3>
-               <LogoUpload />
-            </div>
-          )}
-
           <button 
             onClick={() => {
-              const cartId = `${product.id}-${selectedMaterial}-${Date.now()}`;
+              const cartId = `${product.id}-${selectedMaterial}`;
               addItem({
                 id: cartId,
                 productId: product.id,

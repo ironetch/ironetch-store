@@ -28,6 +28,7 @@ export default async function Navbar() {
           <Link href="/products/coasters" className="hover:text-cyan-laser transition-colors">COASTERS</Link>
           <Link href="/products/cutting-boards" className="hover:text-cyan-laser transition-colors whitespace-nowrap">CUTTING BOARDS</Link>
           <Link href="/products/signs" className="hover:text-cyan-laser transition-colors">SIGNS</Link>
+          <Link href="/custom" className="hover:text-cyan-laser transition-colors text-cyan-laser font-bold tracking-widest">CUSTOM LOGO</Link>
           <Link href="/products/laser-training" className="hover:text-cyan-laser transition-colors whitespace-nowrap text-walnut">LASER TRAINING</Link>
         </div>
 

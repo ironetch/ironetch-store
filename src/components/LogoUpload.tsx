@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-const LogoUpload = () => {
+const LogoUpload = ({ onUpload }: { onUpload?: (url: string) => void }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
 
@@ -12,6 +12,7 @@ const LogoUpload = () => {
     setTimeout(() => {
         setIsUploading(false);
         setFileName("company-logo.svg");
+        if (onUpload) onUpload("/logo.png"); // Mocking standard CDN return
     }, 2000);
   };
 
