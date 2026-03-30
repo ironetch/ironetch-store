@@ -10,7 +10,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 export default function CartMenu({ session }: { session: any }) {
   const { isOpen, toggleCart, items, cartTotal, updateQuantity, removeItem } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   if (!isOpen) return null;
 
@@ -49,15 +48,6 @@ export default function CartMenu({ session }: { session: any }) {
     }
   };
 
-  const handleCheckoutClick = () => {
-    if (items.length === 0) return;
-    if (!session?.user) {
-      setShowAuthPrompt(true);
-    } else {
-      handleCheckout();
-    }
-  };
-
   return (
     <>
       <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100]" onClick={toggleCart} />
@@ -65,34 +55,12 @@ export default function CartMenu({ session }: { session: any }) {
       <div className="fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl z-[101] flex flex-col transform transition-transform duration-300">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
           <h2 className="text-xl font-black tracking-widest uppercase">YOUR <span className="text-cyan-laser">CART</span></h2>
-          <button onClick={() => { setShowAuthPrompt(false); toggleCart(); }} className="text-slate-400 hover:text-white transition-colors">
+          <button onClick={toggleCart} className="text-slate-400 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
-        {showAuthPrompt ? (
-          <div className="flex-1 p-8 flex flex-col justify-center items-center text-center space-y-8 animate-in fade-in zoom-in duration-300">
-            <div>
-              <h3 className="text-2xl font-black tracking-widest text-white mb-3 uppercase">ALMOST THERE</h3>
-              <p className="text-slate-400 text-sm">Would you like to log in for a faster checkout experience?</p>
-            </div>
-            
-            <div className="w-full space-y-4">
-              <a href="/login" onClick={toggleCart} className="block w-full py-4 glass border border-cyan-laser text-cyan-laser font-bold uppercase tracking-widest rounded-xl hover:bg-cyan-laser hover:text-slate-950 transition-all text-sm">
-                LOG IN
-              </a>
-              <button onClick={handleCheckout} disabled={isProcessing} className="w-full py-4 bg-cyan-laser text-slate-950 font-black uppercase tracking-widest rounded-xl hover:scale-[1.02] transition-all cyan-glow disabled:opacity-50 text-sm">
-                {isProcessing ? 'PROCESSING...' : 'CONTINUE AS GUEST'}
-              </button>
-            </div>
-            
-            <button onClick={() => setShowAuthPrompt(false)} className="text-xs text-slate-500 font-bold uppercase tracking-widest hover:text-white transition-colors mt-8">
-              &larr; BACK TO CART
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
           {items.length === 0 ? (
             <div className="text-center text-slate-500 mt-20">
@@ -142,15 +110,13 @@ export default function CartMenu({ session }: { session: any }) {
               <span className="text-2xl font-black text-cyan-laser">${cartTotal().toFixed(2)}</span>
             </div>
             <button 
-              onClick={handleCheckoutClick}
+              onClick={handleCheckout}
               disabled={isProcessing}
               className="w-full py-4 bg-cyan-laser text-slate-950 font-black uppercase tracking-widest rounded-xl hover:scale-[1.02] transition-all cyan-glow disabled:opacity-50 disabled:hover:scale-100"
             >
               {isProcessing ? 'Processing...' : 'CHECKOUT'}
             </button>
           </div>
-        )}
-          </>
         )}
       </div>
     </>
