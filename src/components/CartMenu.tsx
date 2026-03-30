@@ -24,21 +24,17 @@ export default function CartMenu({ session }: { session: any }) {
         body: JSON.stringify({ items }),
       });
 
-      const { sessionId, error } = await response.json();
+      const data = await response.json();
 
-      if (error) {
-        console.error('Checkout error:', error);
-        alert(error);
+      if (data.error) {
+        console.error('Checkout error:', data.error);
+        alert(data.error);
         setIsProcessing(false);
         return;
       }
 
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error("Stripe failed to initialize.");
-      const { error: stripeError } = await (stripe as any).redirectToCheckout({ sessionId });
-      if (stripeError) {
-        console.error('Stripe redirect error:', stripeError);
-        alert(stripeError.message);
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (err: any) {
       console.error(err);
