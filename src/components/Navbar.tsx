@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { auth, signOut } from '@/auth';
 import CartButton from '@/components/CartButton';
+import MobileMenu from '@/components/MobileMenu';
 
 export default async function Navbar() {
   const session = await auth();
@@ -24,13 +25,7 @@ export default async function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-8 font-medium text-sm">
-          <Link href="/products/coasters" className="hover:text-cyan-laser transition-colors">COASTERS</Link>
-          <Link href="/products/cutting-boards" className="hover:text-cyan-laser transition-colors whitespace-nowrap">CUTTING BOARDS</Link>
-          <Link href="/products/signs" className="hover:text-cyan-laser transition-colors">SIGNS</Link>
-          <Link href="/custom" className="hover:text-cyan-laser transition-colors text-cyan-laser font-bold tracking-widest">CUSTOM LOGO</Link>
-          <Link href="/products/laser-training" className="hover:text-cyan-laser transition-colors whitespace-nowrap text-walnut">LASER TRAINING</Link>
-        </div>
+        <MobileMenu />
 
         <div className="flex items-center gap-4">
           {session?.user ? (
