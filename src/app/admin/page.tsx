@@ -54,7 +54,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ id, status })
     });
     if (res.ok) {
-      setCustomOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+      const updated = await res.json();
+      setCustomOrders(prev => prev.map(o => o.id === id ? { ...o, ...updated } : o));
     }
   };
 
@@ -179,7 +180,7 @@ export default function AdminDashboard() {
                         onClick={() => handleOrderStatus(o.id, 'approved')}
                         className="w-full py-3 bg-green-500/10 border border-green-500/40 text-green-400 font-bold rounded-xl hover:bg-green-500/20 transition-all text-xs uppercase tracking-widest"
                       >
-                        ✓ Approve
+                        ✓ Approve & Send Invoice
                       </button>
                       <button
                         onClick={() => handleOrderStatus(o.id, 'rejected')}
@@ -188,6 +189,19 @@ export default function AdminDashboard() {
                         ✕ Reject
                       </button>
                     </>
+                  )}
+                  {o.status === 'approved' && o.invoiceUrl && (
+                    <a
+                      href={o.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3 bg-cyan-laser/10 border border-cyan-laser/40 text-cyan-laser font-bold rounded-xl hover:bg-cyan-laser/20 transition-all text-xs uppercase tracking-widest text-center"
+                    >
+                      View Stripe Invoice →
+                    </a>
+                  )}
+                  {o.invoiceError && (
+                    <p className="text-red-400 text-xs text-center">Invoice error: {o.invoiceError}</p>
                   )}
                   {o.status !== 'pending' && (
                     <button
