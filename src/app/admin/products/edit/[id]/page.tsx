@@ -66,28 +66,30 @@ export default function EditProduct() {
             <input 
               required
               type="number"
+              step="0.01"
+              min="0"
               className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
-              value={formData.price}
+              value={formData.price ?? ''}
               onChange={e => setFormData({...formData, price: e.target.value})}
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-500 tracking-widest">WEIGHT (G)</label>
             <input 
-              required
               type="number"
+              min="0"
               className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
-              value={formData.weight}
+              value={formData.weight ?? ''}
               onChange={e => setFormData({...formData, weight: e.target.value})}
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-500 tracking-widest">STOCK QTY</label>
             <input 
-              required
               type="number"
+              min="0"
               className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 focus:border-cyan-laser outline-none"
-              value={formData.stock || ''}
+              value={formData.stock ?? ''}
               onChange={e => setFormData({...formData, stock: e.target.value})}
             />
           </div>
