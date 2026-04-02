@@ -94,20 +94,40 @@ export default function MaterialPreview({ imageDataUrl, material }: Props) {
       const ix = (W - iw) / 2;
       const iy = (H - ih) / 2;
 
-      // Laser-burn composite: multiply dark, brighten light
-      ctx.globalCompositeOperation = isSlate ? "screen" : "multiply";
-      ctx.globalAlpha = isSlate ? 0.65 : 0.55;
-      ctx.drawImage(img, ix, iy, iw, ih);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-
-      // Subtle cyan glow ring on slate
       if (isSlate) {
+        // For dark slate: render logo as white (laser-etched look)
+        // Use an offscreen canvas to convert logo to white using its alpha mask
+        const off = document.createElement("canvas");
+        off.width = W;
+        off.height = H;
+        const offCtx = off.getContext("2d")!;
+
+        // 1. Draw the original image to capture its alpha shape
+        offCtx.drawImage(img, ix, iy, iw, ih);
+
+        // 2. Replace all color with white while preserving alpha
+        offCtx.globalCompositeOperation = "source-in";
+        offCtx.fillStyle = "white";
+        offCtx.fillRect(0, 0, W, H);
+
+        // 3. Composite the white logo onto the main canvas
+        ctx.globalAlpha = 0.82;
+        ctx.drawImage(off, 0, 0);
+        ctx.globalAlpha = 1;
+
+        // Subtle cyan glow ring
         const glow = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.45);
         glow.addColorStop(0, "rgba(0,251,255,0.06)");
         glow.addColorStop(1, "transparent");
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, W, H);
+      } else {
+        // For wood: burn the logo in using multiply blend
+        ctx.globalCompositeOperation = "multiply";
+        ctx.globalAlpha = 0.55;
+        ctx.drawImage(img, ix, iy, iw, ih);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1;
       }
     };
     img.src = imageDataUrl;
