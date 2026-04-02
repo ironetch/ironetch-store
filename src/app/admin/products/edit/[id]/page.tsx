@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import LogoUpload from '@/components/LogoUpload';
+import AdminImageUpload from '@/components/AdminImageUpload';
 
 export default function EditProduct() {
   const params = useParams();
@@ -127,21 +127,12 @@ export default function EditProduct() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE UPLOAD</label>
-          {formData.imageUrl ? (
-            <div className="bg-slate-900 border border-cyan-laser/50 rounded-xl p-4 flex items-center justify-between">
-              <span className="text-cyan-laser text-sm truncate font-mono">{formData.imageUrl}</span>
-              <button 
-                type="button" 
-                onClick={() => setFormData({...formData, imageUrl: ''})}
-                className="text-red-400 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
-              >
-                REMOVE
-              </button>
-            </div>
-          ) : (
-            <LogoUpload onUpload={(url) => setFormData({...formData, imageUrl: url})} />
-          )}
+          <label className="text-sm font-bold text-slate-500 tracking-widest">PRODUCT IMAGE</label>
+          <AdminImageUpload
+            material={formData.materials?.split(',')[0]?.trim() || 'Slate'}
+            onUpload={(url) => setFormData({...formData, imageUrl: url})}
+            existingUrl={formData.imageUrl || ''}
+          />
         </div>
 
         <div className="flex items-center gap-3">

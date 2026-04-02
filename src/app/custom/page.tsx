@@ -21,6 +21,7 @@ export default function CustomBuilder() {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [logoSize, setLogoSize] = useState<number>(0.7);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -202,9 +203,26 @@ export default function CustomBuilder() {
                 ))}
               </div>
 
-              <MaterialPreview imageDataUrl={imageDataUrl} material={previewMaterial} />
+              <MaterialPreview imageDataUrl={imageDataUrl} material={previewMaterial} size={logoSize} />
 
-              <div className="mt-4 flex items-center gap-2 text-xs text-slate-500 font-bold uppercase tracking-widest">
+              {/* Size slider */}
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Logo Size</label>
+                  <span className="text-xs text-cyan-laser font-bold">{Math.round(logoSize * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.3}
+                  max={1.0}
+                  step={0.05}
+                  value={logoSize}
+                  onChange={(e) => setLogoSize(parseFloat(e.target.value))}
+                  className="w-full accent-cyan-laser cursor-pointer"
+                />
+              </div>
+
+              <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 font-bold uppercase tracking-widest">
                 <span className="w-2 h-2 rounded-full bg-cyan-laser inline-block" />
                 &nbsp;File: {fileName}
               </div>
