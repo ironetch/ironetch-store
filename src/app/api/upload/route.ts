@@ -1,8 +1,4 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads');
 
 export async function POST(req: Request) {
   try {
@@ -22,21 +18,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'File too large (max 10 MB)' }, { status: 400 });
     }
 
-    // Ensure uploads directory exists
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
-
-    // Generate a unique filename preserving extension
-    const ext = file.type === 'image/svg+xml' ? '.svg' : '.png';
-    const fileName = `product-${Date.now()}${ext}`;
-    const filePath = path.join(UPLOADS_DIR, fileName);
-
-    // Write the file
+    // Convert the file directly to a Base64 Data URL
+    // This avoids writing to the Vercel serverless read-only filesystem (/var/task/public)
     const arrayBuffer = await file.arrayBuffer();
-    await fs.writeFile(filePath, Buffer.from(arrayBuffer));
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Str = buffer.toString('base64');
+    const dataUrl = `data:${file.type};base64,${base64Str}`;
 
-    // Return the public URL
-    const publicUrl = `/uploads/${fileName}`;
-    return NextResponse.json({ url: publicUrl });
+    // Return the data URL. In a full production app, this should be swapped out 
+    // for Vercel Blob, AWS S3, or Cloudinary.
+    return NextResponse.json({ url: dataUrl });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
