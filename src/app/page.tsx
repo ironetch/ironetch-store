@@ -79,7 +79,7 @@ export default function Home() {
               price={`$${product.price.toFixed(2)} CAD`}
               description={product.description}
               href={`/products/${product.id}`}
-              image={`/products/${product.id}.jpg`}
+              image={product.imageUrl || `/products/${product.id}.jpg`}
             />
           ))}
         </div>
