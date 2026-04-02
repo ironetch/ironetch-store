@@ -33,21 +33,49 @@ export default function AdminImageUpload({ material, onUpload, existingUrl }: Pr
       setFileError("Only SVG or PNG files are accepted.");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setFileError("File must be under 10 MB.");
-      return;
-    }
 
-    // Show local preview immediately
-    const reader = new FileReader();
-    reader.onload = (ev) => setPreviewSrc(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    // Shrink PNG files client-side to prevent Vercel 4.5MB payload limit errors
+    const processFile = async (originalFile: File): Promise<File> => {
+      if (originalFile.type !== "image/png") return originalFile; // SVG stays vector
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let { width, height } = img;
+            const max = 800; // max width/height to keep base64 tiny
+            if (width > max || height > max) {
+              if (width > height) { height = Math.round((height * max) / width); width = max; }
+              else { width = Math.round((width * max) / height); height = max; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) resolve(new File([blob], originalFile.name, { type: "image/png" }));
+              else resolve(originalFile);
+            }, "image/png", 0.9);
+          };
+          img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(originalFile);
+      });
+    };
 
-    // Upload to server → get back a small public URL
     setIsUploading(true);
     try {
+      const finalFile = await processFile(file);
+
+      // Show local preview immediately from the processed/original file
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreviewSrc(ev.target?.result as string);
+      reader.readAsDataURL(finalFile);
+
+      // Upload to server → get back a small public URL (which is just a base64 string on Vercel)
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", finalFile);
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
@@ -55,7 +83,7 @@ export default function AdminImageUpload({ material, onUpload, existingUrl }: Pr
         setPreviewSrc(existingUrl || null);
         return;
       }
-      setFileName(file.name);
+      setFileName(finalFile.name);
       onUpload(data.url); // Pass the tiny URL to the parent form
     } catch {
       setFileError("Upload failed — check your connection.");

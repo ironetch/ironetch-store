@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const dataPath = path.join(process.cwd(), 'src/data/products.json');
+import { readJsonData, writeJsonData } from '@/lib/db';
 
 export async function GET() {
-  const fileData = fs.readFileSync(dataPath, 'utf8');
-  return NextResponse.json(JSON.parse(fileData));
+  try {
+    const products = await readJsonData('products.json');
+    return NextResponse.json(products);
+  } catch {
+    return NextResponse.json([]);
+  }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const fileData = fs.readFileSync(dataPath, 'utf8');
-    const products = JSON.parse(fileData);
+    const products = await readJsonData('products.json');
     
     const newProduct = {
       id: body.title.toLowerCase().replace(/\s+/g, '-'),
@@ -26,10 +26,10 @@ export async function POST(req: Request) {
     };
     
     products.push(newProduct);
-    fs.writeFileSync(dataPath, JSON.stringify(products, null, 2));
+    await writeJsonData('products.json', products);
     
     return NextResponse.json(newProduct);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to add product' }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Failed to add product' }, { status: 500 });
   }
 }
