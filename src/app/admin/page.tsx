@@ -4,38 +4,33 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'promo-codes'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'promo-codes'>('products');
   const [products, setProducts] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
   const [promoCodes, setPromoCodes] = useState<any[]>([]);
-  const [newPromo, setNewPromo] = useState({ code: '', amount_off: '', percent_off: '' });
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState('');
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => setProducts(data));
-    fetch('/api/orders').then(res => res.json()).then(data => setOrders(data));
-    fetch('/api/promo-codes').then(res => res.json()).then(data => {
-      if (Array.isArray(data)) setPromoCodes(data);
-    });
   }, []);
 
-  const handleCreatePromo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch('/api/promo-codes', {
-      method: 'POST',
-      body: JSON.stringify(newPromo),
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setPromoCodes([data, ...promoCodes]);
-      setNewPromo({ code: '', amount_off: '', percent_off: '' });
-    } else {
-      alert('Failed to create promo code');
+  useEffect(() => {
+    if (activeTab === 'promo-codes') {
+      setPromoLoading(true);
+      setPromoError('');
+      fetch('/api/promo-codes')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setPromoCodes(data);
+          else setPromoError(data.error || 'Failed to load promo codes');
+        })
+        .catch(() => setPromoError('Network error'))
+        .finally(() => setPromoLoading(false));
     }
-  };
+  }, [activeTab]);
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to remove this high-end item?')) {
+    if (confirm('Are you sure you want to remove this product?')) {
       const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       if (res.ok) setProducts(products.filter(p => p.id !== id));
     }
@@ -63,12 +58,6 @@ export default function AdminDashboard() {
           PRODUCTS
         </button>
         <button 
-          onClick={() => setActiveTab('orders')}
-          className={`pb-4 text-sm font-bold tracking-[0.2em] transition-all ${activeTab === 'orders' ? 'text-cyan-laser border-b-2 border-cyan-laser' : 'text-slate-500'}`}
-        >
-          ORDERS
-        </button>
-        <button 
           onClick={() => setActiveTab('promo-codes')}
           className={`pb-4 text-sm font-bold tracking-[0.2em] transition-all ${activeTab === 'promo-codes' ? 'text-cyan-laser border-b-2 border-cyan-laser' : 'text-slate-500'}`}
         >
@@ -80,9 +69,15 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 gap-4">
           {products.map((p) => (
             <div key={p.id} className="glass p-6 rounded-2xl border border-slate-800 flex items-center justify-between group hover:border-cyan-laser/50 transition-all">
-              <div>
-                <h3 className="text-xl font-bold">{p.title}</h3>
-                <p className="text-slate-400 text-sm">${p.price.toFixed(2)} CAD | {p.category}</p>
+              <div className="flex items-center gap-4">
+                {p.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.imageUrl} alt={p.title} className="w-12 h-12 rounded-lg object-cover border border-slate-700" />
+                )}
+                <div>
+                  <h3 className="text-xl font-bold">{p.title}</h3>
+                  <p className="text-slate-400 text-sm">${p.price.toFixed(2)} CAD · {p.category} · Stock: {p.stock ?? '—'}</p>
+                </div>
               </div>
               <div className="flex gap-4">
                 <Link href={`/admin/products/edit/${p.id}`} className="px-4 py-2 text-xs font-bold border border-slate-700 rounded-lg hover:border-cyan-laser transition-colors text-slate-400 hover:text-white">EDIT</Link>
@@ -97,65 +92,56 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
-      {activeTab === 'orders' && (
-        <div className="grid grid-cols-1 gap-4">
-          {orders.map((o) => (
-            <div key={o.id} className="glass p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                 <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-cyan-laser font-bold">#</div>
-                 <div>
-                    <h3 className="text-lg font-bold">{o.customer}</h3>
-                    <p className="text-slate-400 text-sm">{o.product} • {o.date}</p>
-                 </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-white">${o.amount.toFixed(2)} CAD</p>
-                <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${o.status === 'Shipped' ? 'text-green-500' : 'text-cyan-laser'}`}>{o.status}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
       {activeTab === 'promo-codes' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Create Promo Code</h2>
-            <form onSubmit={handleCreatePromo} className="glass p-6 rounded-2xl border border-slate-800 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">PROMO CODE</label>
-                <input required className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white uppercase focus:border-cyan-laser outline-none" placeholder="SUMMER20" value={newPromo.code} onChange={e => setNewPromo({...newPromo, code: e.target.value.toUpperCase()})} />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-slate-500 mb-2">AMOUNT OFF (CAD)</label>
-                  <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-laser outline-none" placeholder="10.00" value={newPromo.amount_off} onChange={e => setNewPromo({...newPromo, amount_off: e.target.value, percent_off: ''})} disabled={!!newPromo.percent_off} />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-slate-500 mb-2">PERCENT OFF (%)</label>
-                  <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-laser outline-none" placeholder="20" value={newPromo.percent_off} onChange={e => setNewPromo({...newPromo, percent_off: e.target.value, amount_off: ''})} disabled={!!newPromo.amount_off} />
-                </div>
-              </div>
-              <button className="w-full py-3 bg-cyan-laser text-slate-950 font-bold rounded-lg cyan-glow mt-4">GENERATE CODE</button>
-            </form>
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Active Promo Codes</h2>
+            <a
+              href="https://dashboard.stripe.com/coupons"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2 text-xs font-bold bg-cyan-laser text-slate-950 rounded-lg cyan-glow hover:scale-105 transition-all uppercase tracking-widest"
+            >
+              MANAGE IN STRIPE →
+            </a>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Active Codes</h2>
-            <div className="space-y-4">
+
+          {promoLoading && (
+            <p className="text-slate-500 animate-pulse text-center py-12 uppercase tracking-widest text-xs">FETCHING FROM STRIPE...</p>
+          )}
+
+          {promoError && (
+            <div className="glass p-6 rounded-2xl border border-red-500/30 text-red-400 text-sm text-center">
+              {promoError}
+            </div>
+          )}
+
+          {!promoLoading && !promoError && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {promoCodes.length === 0 && (
+                <p className="col-span-3 text-center text-slate-500 py-12 text-sm uppercase tracking-widest">No active promo codes in Stripe.</p>
+              )}
               {promoCodes.map((pc: any) => (
-                <div key={pc.id} className="glass p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                  <div>
-                    <span className="font-bold text-cyan-laser text-xl uppercase">{pc.code}</span>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {pc.coupon.percent_off ? `${pc.coupon.percent_off}% OFF` : `$${(pc.coupon.amount_off/100).toFixed(2)} CAD OFF`}
-                    </p>
+                <div key={pc.id} className="glass p-6 rounded-2xl border border-slate-800 hover:border-cyan-laser/50 transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="font-black text-cyan-laser text-2xl tracking-widest uppercase">{pc.code}</span>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-widest ${pc.active ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
+                      {pc.active ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
                   </div>
-                  <div className="text-xs text-slate-500">
-                     {pc.times_redeemed} REDEEMED
-                  </div>
+                  <p className="text-slate-300 font-bold mb-1">
+                    {pc.coupon?.percent_off
+                      ? `${pc.coupon.percent_off}% OFF`
+                      : pc.coupon?.amount_off
+                      ? `$${(pc.coupon.amount_off / 100).toFixed(2)} CAD OFF`
+                      : 'Discount'}
+                  </p>
+                  <p className="text-xs text-slate-500 uppercase tracking-widest mt-3">{pc.times_redeemed} times redeemed</p>
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
