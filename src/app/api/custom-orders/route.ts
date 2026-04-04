@@ -1,36 +1,41 @@
 import { NextResponse } from 'next/server';
-import { readJsonData, writeJsonData } from '@/lib/db';
+import { prisma } from '@/lib/db';
 import Stripe from 'stripe';
+
+export const dynamic = 'force-dynamic';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
 
 export async function GET() {
-  const orders = await readJsonData('custom-orders.json');
-  return NextResponse.json(orders);
+  try {
+    const orders = await prisma.customOrder.findMany({
+      orderBy: { submittedAt: 'desc' }
+    });
+    return NextResponse.json(orders);
+  } catch {
+    return NextResponse.json([]);
+  }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const orders = await readJsonData('custom-orders.json');
 
-    const newOrder = {
-      id: `custom-${Date.now()}`,
-      status: 'pending',
-      submittedAt: new Date().toISOString(),
-      customerName: body.customerName || 'Guest',
-      customerEmail: body.customerEmail || '',
-      productId: body.productId,
-      productTitle: body.productTitle,
-      material: body.material,
-      quantity: body.quantity,
-      price: body.price,
-      imageDataUrl: body.imageDataUrl,
-      notes: body.notes || '',
-    };
-
-    orders.push(newOrder);
-    await writeJsonData('custom-orders.json', orders);
+    const newOrder = await prisma.customOrder.create({
+      data: {
+        id: `custom-${Date.now()}`,
+        status: 'pending',
+        customerName: body.customerName || 'Guest',
+        customerEmail: body.customerEmail || '',
+        productId: body.productId,
+        productTitle: body.productTitle,
+        material: body.material,
+        quantity: parseInt(body.quantity),
+        price: parseFloat(body.price),
+        imageDataUrl: body.imageDataUrl,
+        notes: body.notes || ''
+      }
+    });
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error: any) {
@@ -41,18 +46,21 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const { id, status } = await req.json();
-    const orders = await readJsonData('custom-orders.json');
-    const idx = orders.findIndex((o: any) => o.id === id);
-    if (idx === -1) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    
+    let order = await prisma.customOrder.findUnique({ where: { id } });
+    if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
 
-    orders[idx].status = status;
-    orders[idx].updatedAt = new Date().toISOString();
+    order = await prisma.customOrder.update({
+      where: { id },
+      data: { status }
+    });
 
     let invoiceUrl: string | null = null;
+    let invoiceError: string | null = null;
+    let stripeInvoiceId: string | null = null;
 
-    if (status === 'approved' && orders[idx].customerEmail) {
+    if (status === 'approved' && order.customerEmail) {
       try {
-        const order = orders[idx];
         const existingCustomers = await stripe.customers.list({ email: order.customerEmail, limit: 1 });
         let customer: Stripe.Customer;
         if (existingCustomers.data.length > 0) {
@@ -87,16 +95,21 @@ export async function PATCH(req: Request) {
         await stripe.invoices.sendInvoice(invoice.id);
 
         invoiceUrl = finalized.hosted_invoice_url || null;
-        orders[idx].stripeInvoiceId = finalized.id;
-        orders[idx].invoiceUrl = invoiceUrl;
+        stripeInvoiceId = finalized.id;
+        
       } catch (stripeErr: any) {
         console.error('Stripe invoice creation failed:', stripeErr.message);
-        orders[idx].invoiceError = stripeErr.message;
+        invoiceError = stripeErr.message;
       }
+      
+      // Update with Stripe info
+      order = await prisma.customOrder.update({
+        where: { id },
+        data: { invoiceUrl, stripeInvoiceId, invoiceError }
+      });
     }
 
-    await writeJsonData('custom-orders.json', orders);
-    return NextResponse.json({ ...orders[idx], invoiceUrl });
+    return NextResponse.json({ ...order, invoiceUrl });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -105,9 +118,7 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
-    const orders = await readJsonData('custom-orders.json');
-    const filtered = orders.filter((o: any) => o.id !== id);
-    await writeJsonData('custom-orders.json', filtered);
+    await prisma.customOrder.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
