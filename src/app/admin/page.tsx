@@ -8,6 +8,7 @@ type AdminTab = 'products' | 'custom-orders' | 'promo-codes';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
   const [products, setProducts] = useState<any[]>([]);
+  const [productsError, setProductsError] = useState<string>('');
   const [customOrders, setCustomOrders] = useState<any[]>([]);
   const [customOrdersLoading, setCustomOrdersLoading] = useState(false);
   const [promoCodes, setPromoCodes] = useState<any[]>([]);
@@ -15,7 +16,16 @@ export default function AdminDashboard() {
   const [promoError, setPromoError] = useState('');
 
   useEffect(() => {
-    fetch('/api/products').then(res => res.json()).then(data => setProducts(data));
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProductsError(data.error || 'Failed to load products');
+        }
+      })
+      .catch((e) => setProductsError(e.message));
   }, []);
 
   useEffect(() => {
@@ -114,6 +124,11 @@ export default function AdminDashboard() {
       {/* ── PRODUCTS ───────────────── */}
       {activeTab === 'products' && (
         <div className="grid grid-cols-1 gap-4">
+          {productsError && (
+             <div className="glass p-6 rounded-2xl border border-red-500/30 text-red-400 text-sm font-bold uppercase tracking-widest text-center">
+               DATABASE ERROR: {productsError}
+             </div>
+          )}
           {products.map((p) => (
             <div key={p.id} className="glass p-6 rounded-2xl border border-slate-800 flex items-center justify-between group hover:border-cyan-laser/50 transition-all">
               <div className="flex items-center gap-4">
