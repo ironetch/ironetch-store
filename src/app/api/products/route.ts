@@ -9,8 +9,8 @@ export async function GET() {
       orderBy: { createdAt: 'asc' }
     });
     return NextResponse.json(products);
-  } catch (error) {
-    return NextResponse.json([]);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || String(error) }, { status: 500 });
   }
 }
 

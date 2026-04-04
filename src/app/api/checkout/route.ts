@@ -1,22 +1,21 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import fs from 'fs';
-import path from 'path';
+import { prisma } from '@/lib/db';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
-const dataPath = path.join(process.cwd(), 'src/data/products.json');
+export const dynamic = 'force-dynamic';
 
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { items } = body;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', { apiVersion: '2025-02-24.acacia' as any });
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    const localProducts = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    const localProducts = await prisma.product.findMany();
 
     for (const item of items) {
       const product = localProducts.find((p: any) => p.id === item.productId);

@@ -4,8 +4,6 @@ import Stripe from 'stripe';
 
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
-
 export async function GET() {
   try {
     const orders = await prisma.customOrder.findMany({
@@ -61,6 +59,7 @@ export async function PATCH(req: Request) {
 
     if (status === 'approved' && order.customerEmail) {
       try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', { apiVersion: '2025-02-24.acacia' as any });
         const existingCustomers = await stripe.customers.list({ email: order.customerEmail, limit: 1 });
         let customer: Stripe.Customer;
         if (existingCustomers.data.length > 0) {
