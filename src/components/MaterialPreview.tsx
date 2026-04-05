@@ -97,9 +97,9 @@ export default function MaterialPreview({ imageDataUrl, material, size = 0.7 }: 
         const offCtx = off.getContext("2d")!;
         offCtx.drawImage(img, ix, iy, iw, ih);
         offCtx.globalCompositeOperation = "source-in";
-        offCtx.fillStyle = "#e8e4d4"; // warm off-white, like laser-etched marks on stone
+        offCtx.fillStyle = "#ffffff"; // pure white — laser-etched mark on slate
         offCtx.fillRect(0, 0, W, H);
-        ctx.globalAlpha = 0.88;
+        ctx.globalAlpha = 0.95;
         ctx.drawImage(off, 0, 0);
         ctx.globalAlpha = 1;
 
