@@ -16,7 +16,7 @@ export default function EditProduct() {
       .then(res => res.json())
       .then(data => {
         const found = data.find((p: any) => p.id === id);
-        if (found) setFormData({ ...found, materials: found.materials.join(', ') });
+        if (found) setFormData({ ...found, materials: found.materials.join(', '), images: found.images || [] });
       });
   }, [id]);
 
@@ -133,7 +133,9 @@ export default function EditProduct() {
           <AdminImageUpload
             material={formData.materials?.split(',')[0]?.trim() || 'Slate'}
             onUpload={(url) => setFormData({...formData, imageUrl: url})}
+            onPhotosChange={(urls) => setFormData((prev: any) => ({...prev, images: urls}))}
             existingUrl={formData.imageUrl || ''}
+            existingPhotos={formData.images || []}
           />
         </div>
 

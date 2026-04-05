@@ -19,6 +19,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         description: body.description,
         materials: body.materials ? (Array.isArray(body.materials) ? body.materials : [body.materials]) : [],
         imageUrl: body.imageUrl || "",
+        images: Array.isArray(body.images) ? body.images : [],
         isCustom: Boolean(body.isCustom)
       }
     });

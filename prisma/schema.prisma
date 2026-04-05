@@ -18,6 +18,7 @@ model Product {
   description String
   materials   String[]
   imageUrl    String   @default("")
+  images      String[]  // Additional real product photos (JPEG etc.)
   isCustom    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
