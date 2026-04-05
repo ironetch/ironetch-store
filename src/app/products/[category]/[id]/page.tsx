@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useCart } from '@/store/useCart';
 
-function ImageGallery({ imageUrl, images, title }: { imageUrl?: string; images?: string[]; title: string }) {
+function ImageGallery({ imageUrl, images, title, isSlate }: { imageUrl?: string; images?: string[]; title: string; isSlate?: boolean }) {
   const allImages = [...(imageUrl ? [imageUrl] : []), ...(images || [])];
   const [activeImg, setActiveImg] = useState<string | null>(allImages[0] || null);
 
@@ -13,12 +13,21 @@ function ImageGallery({ imageUrl, images, title }: { imageUrl?: string; images?:
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl]);
 
+  // Apply white filter to the logo (imageUrl) on slate products; real photos stay natural
+  const isLogoImage = activeImg === imageUrl;
+  const slateFilter = isSlate && isLogoImage ? 'brightness(0) invert(1)' : undefined;
+
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4">
         {activeImg ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={activeImg} alt={title} className="w-full h-full object-contain" />
+          <img
+            src={activeImg}
+            alt={title}
+            className="w-full h-full object-contain transition-all"
+            style={slateFilter ? { filter: slateFilter } : undefined}
+          />
         ) : (
           <span className="text-8xl font-black italic text-slate-800">{title[0]}</span>
         )}
@@ -32,6 +41,7 @@ function ImageGallery({ imageUrl, images, title }: { imageUrl?: string; images?:
               src={img}
               alt={`view ${i + 1}`}
               onClick={() => setActiveImg(img)}
+              style={isSlate && img === imageUrl ? { filter: 'brightness(0) invert(1)' } : undefined}
               className={`w-12 h-12 rounded-lg object-contain border-2 cursor-pointer flex-shrink-0 transition-all ${
                 activeImg === img ? 'border-cyan-laser' : 'border-slate-700 opacity-60 hover:opacity-100'
               }`}
@@ -71,7 +81,7 @@ export default function ProductPage() {
         <div className="relative group space-y-3">
           {/* Main image */}
           <div className="aspect-square glass border border-slate-800 rounded-3xl overflow-hidden flex items-center justify-center bg-slate-900">
-            <ImageGallery imageUrl={product.imageUrl} images={product.images} title={product.title} />
+            <ImageGallery imageUrl={product.imageUrl} images={product.images} title={product.title} isSlate={product.materials?.some((m: string) => m.toLowerCase().includes('slate'))} />
           </div>
           <div className="absolute inset-0 bg-cyan-laser/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-3xl" />
         </div>
