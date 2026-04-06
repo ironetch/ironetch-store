@@ -46,7 +46,8 @@ export default function CategoryGalleryPage() {
               price={`$${product.price.toFixed(2)} CAD`}
               description={product.description}
               href={`/products/${category}/${product.id}`}
-              image={product.imageUrl || `/products/${product.id}.jpg`}
+              image={product.imageUrl || ''}
+              materials={product.materials || []}
             />
           ))}
         </div>
