@@ -129,8 +129,8 @@ export default function MaterialPreview({ imageDataUrl, material, size = 0.7 }: 
     <div className="flex flex-col items-center gap-3">
       <canvas
         ref={canvasRef}
-        width={360}
-        height={360}
+        width={480}
+        height={480}
         className="rounded-2xl border border-slate-700 shadow-2xl w-full max-w-sm"
       />
       <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">

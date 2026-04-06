@@ -199,7 +199,10 @@ export default function AdminImageUpload({
         {/* Material Preview */}
         {previewSrc && (
           <div className="space-y-3 pt-1">
-            <MaterialPreview imageDataUrl={previewSrc} material={material || "Slate"} size={logoSize} />
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Preview — How it looks engraved</p>
+            <div className="rounded-2xl overflow-hidden border border-slate-700">
+              <MaterialPreview imageDataUrl={previewSrc} material={material || "Slate"} size={logoSize} />
+            </div>
             <div className="space-y-1">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Logo Size on Preview</label>
