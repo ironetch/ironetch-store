@@ -37,11 +37,22 @@ export default function ProductPage() {
         {/* ── Left column: material preview + real photos ── */}
         <div className="space-y-4">
 
-          {/* Primary: MaterialPreview canvas — same rendered output as admin */}
-          {product.imageUrl ? (
+          {/* Primary display: real photo OR MaterialPreview canvas */}
+          {activePhoto ? (
+            // Real product JPEG — show as plain image, no canvas processing
+            <div className="aspect-square rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activePhoto}
+                alt={product.title}
+                className="w-full h-full object-contain p-4"
+              />
+            </div>
+          ) : product.imageUrl ? (
+            // Logo / etching preview — render through MaterialPreview canvas
             <div className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-900">
               <MaterialPreview
-                imageDataUrl={activePhoto || product.imageUrl}
+                imageDataUrl={product.imageUrl}
                 material={selectedMaterial || product.materials?.[0] || 'Slate'}
                 size={0.75}
               />
